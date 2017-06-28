@@ -19,7 +19,7 @@ exports.handler = function(event,context) {
     }
 
     /*
-      i)   LaunchRequest       Ex: "Open greeter"
+      i)   LaunchRequest       Ex: "Open greenscore"
       ii)  IntentRequest       Ex: "Say hello to John" or "ask greeter to say hello to John"
       iii) SessionEndedRequest Ex: "exit" or error or timeout
     */
@@ -62,67 +62,13 @@ exports.handler = function(event,context) {
 }
 
 
-/*
-function getWish() {
-  var myDate = new Date();
-  var hours = myDate.getUTCHours() - 5;
-  if (hours < 0) {
-    hours = hours + 24;
-  }
 
-  if (hours < 12) {
-    return "Good Morning. ";
-  } else if (hours < 18) {
-    return "Good afternoon. ";
-  } else {
-    return "Good evening. ";
-  }
-  
-}
-*/
-
-
-
-function getGeoCode(city, callback){
-
-  const API_KEY = 'AIzaSyAeikm6Xn70P1S7-rzs7HO_iQ7m3dOwXVM';
-  const geocodeUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + city + '&key=' + API_KEY;
-  //var url = "http://api.walkscore.com/score?format=json&address=Seattle&lat=47.6085"+
-  //"&lon=-122.3295&transit=1&bike=1&wsapikey=fd849fcadadf4c953c1329a023c60e48"
-  var req = https.get(geocodeUrl, function(res) {
-    var body = "";
-
-    res.on('data', function(chunk) {
-      body += chunk;
-    });
-
-    res.on('end', function() {
-      //removing escape characters for parsing
-      body = body.replace(/\\/g,'');
-      //converts string to JS object
-      var result = JSON.parse(body);
-      console.log(186, result);
-      
-      if(!result.results.length){
-        return callback(new Error('Invalid Response from google'));
-      }
-      var location = result.results[0].geometry.location;
-      callback(null, location);
-    });
-
-  });
-
-  req.on('error', function(err) {
-    callback(err);
-  });
-}
 
 function buildResponse(options) {
 
   if(process.env.NODE_DEBUG_EN) {
     console.log("buildResponse options:\n"+JSON.stringify(options,null,2));
   }
-
   var response = {
     version: "1.0",
     response: {
@@ -174,8 +120,8 @@ function buildResponse(options) {
 }
 
 function handleLaunchRequest(context) {
-  let options = {};
-  options.speechText =  "Welcome to GoGreen skill. Using GoGreen you can get walk score, bike score and transit scores of cities in United States"
+  var options = {};
+  options.speechText =  "Welcome to Green Score skill. Using Green Score you can get walk, bike and transit scores of cities in United States"
   +"Which city you want go for? ";
   options.repromptText = "You can say for example, get me GoGreen information for Seattle";
   options.endSession = false;
@@ -183,11 +129,12 @@ function handleLaunchRequest(context) {
 }
 
 function handleCityNameIntent(request,context) {
-  let options = {};
+  var options = {};
   const city = request.intent.slots.CityName.value;
-  options.speechText = 'OK city name is' + city;
+  options.speechText = 'OK. city name is  ' + '  ' + city;
   //options.speechText += getWish();
-  options.cardTitle = 'Hello '+ city;
+  options.cardTitle = 'Score for  '+ ' ' + city;
+  
   getGeoCode(city, function (err, location) {
     console.log(189, location);
     if (err) {
@@ -199,28 +146,64 @@ function handleCityNameIntent(request,context) {
       if(err) {
         context.fail(err);
       } else {
-        options.speechText += '  ' + resp.description;
         if(resp.walkscore){
-          options.speechText += ' walkscore is ' + resp.walkscore;
-        }
+            //options.speechText += ' The walkscore for ' + resp.walkscore;
+            options.speechText += ' The walkscore for  ' + city+ 'is'+ ' '+ resp.walkscore + 'and it is '+ ' ' + resp.description;
+          if(resp.walkscore>69 and resp.walkscore<100){
+            options.speechText += 'Some proven facts for walkable cities:  People in walkable cities weigh 6-10 pounds less, Walkable neighborhoods make people happier';
+            }
+          else if(resp.walkscore>0 and resp.walkscore<69){
+          options.speechText += 'Some proven facts for car dependant cities:  Vehicles are America’s biggest air quality compromisers, producing about one-third of all U.S. air pollution.he end of a car’s life doesn’t mark the end of its environmental impact. Plastics, toxic battery acids, and other products may stay in the environment.';
+          }
         if(resp.transit && resp.transit.score){
-          options.speechText += ' transit score is ' + resp.transit.score + ' ' + resp.transit.description;
+          options.speechText += ' transit score for  ' + city+ 'is'+ ' '+ resp.transit.score + 'and it is '+ resp.transit.description;
         } else {
-          options.speechText += ' transit score not available'
+          options.speechText += ' transit score for' +city+ ' '+'is not available'
         }
         if(resp.bike && resp.bike.score){
-          options.speechText += ' bike score is ' + resp.bike.score + ' ' + resp.bike.description;
+          options.speechText += ' bike score is ' + resp.bike.score + '  ' + 'The area is '+resp.bike.description;
         } else {
-          options.speechText += ' bike score not available'
+          options.speechText += ' bike score for '+city+ 'is not available'
         }
         options.cardContent = resp.description;
         options.imageUrl = resp.ws_link;
         options.endSession = true;
         context.succeed(buildResponse(options));
       }
-    });
+    };
   })
-  
+}
+
+function getGeoCode(city, callback){
+
+  const API_KEY = 'AIzaSyAeikm6Xn70P1S7-rzs7HO_iQ7m3dOwXVM';
+  const geocodeUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + city + '&key=' + API_KEY;
+  var req = https.get(geocodeUrl, function(res) {
+    var body = "";
+
+    res.on('data', function(chunk) {
+      body += chunk;
+    });
+
+    res.on('end', function() {
+      //removing escape characters for parsing
+      body = body.replace(/\\/g,'');
+      //converts string to JS object
+      var result = JSON.parse(body);
+      console.log(186, result);
+      
+      if(!result.results.length){
+        return callback(new Error('Invalid Response from google'));
+      }
+      var location = result.results[0].geometry.location;
+      callback(null, location);
+    });
+
+  });
+
+  req.on('error', function(err) {
+    callback(err);
+  });
 }
 
 function getScore(city, location, callback) {
@@ -249,48 +232,4 @@ function getScore(city, location, callback) {
     callback(err);
   });
   
-}
-
-function handleQuoteIntent(request,context,session) {
-  let options = {};
-  options.session = session;
-
-  getScore(function(quote,err) {
-    if(err) {
-      context.fail(err);
-    } else {
-      options.speechText = quote;
-      options.speechText += " Do you want to listen to one more quote? ";
-      options.repromptText = "You can say yes or one more. ";
-      options.session.attributes.quoteIntent = true;
-      options.endSession = false;
-      context.succeed(buildResponse(options));
-    }
-  });
-
-}
-
-function handleNextQuoteIntent(request,context,session) {
-  let options = {};
-  options.session = session;
-
-  if(session.attributes.quoteIntent) {
-    getScore(function(quote,err) {
-      if(err) {
-        context.fail(err);
-      } else {
-        options.speechText = quote;
-        options.speechText += " Do you want to listen to one more quote? ";
-        options.repromptText = "You can say yes or one more. ";
-        //options.session.attributes.quoteIntent = true;
-        options.endSession = false;
-        context.succeed(buildResponse(options));
-      }
-    });
-  } else {
-    options.speechText = " Wrong invocation of this intent. ";
-    options.endSession = true;
-    context.succeed(buildResponse(options));
-  }
-
 }
