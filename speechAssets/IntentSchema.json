@@ -1,0 +1,22 @@
+{
+  "intents":[
+    {
+      "intent" : "CityNameIntent",
+      "slots" : [
+        {
+          "name": "CityName",
+          "type": "CITY_NAMES"
+        }
+      ]
+    },
+    {
+      "intent" : "QuoteIntent"
+    },
+    {
+      "intent" : "NextQuoteIntent"
+    },
+    {
+      "intent" : "AMAZON.StopIntent"
+    }
+  ]
+}
