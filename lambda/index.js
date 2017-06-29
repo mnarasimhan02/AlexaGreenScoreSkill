@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-var http = require('http');
-var https = require('https');
+var http = require("http");
+var https = require("https");
 
 exports.handler = function(event,context) {
 
@@ -19,7 +19,7 @@ exports.handler = function(event,context) {
     }
 
     /*
-      i)   LaunchRequest       Ex: "Open greenscore"
+      i)   LaunchRequest       Ex: "Open greeter"
       ii)  IntentRequest       Ex: "Say hello to John" or "ask greeter to say hello to John"
       iii) SessionEndedRequest Ex: "exit" or error or timeout
     */
@@ -62,13 +62,46 @@ exports.handler = function(event,context) {
 }
 
 
+function getGeoCode(city, callback){
 
+  const API_KEY = 'AIzaSyAeikm6Xn70P1S7-rzs7HO_iQ7m3dOwXVM';
+  const geocodeUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + city + '&key=' + API_KEY;
+  //var url = "http://api.walkscore.com/score?format=json&address=Seattle&lat=47.6085"+
+  //"&lon=-122.3295&transit=1&bike=1&wsapikey=fd849fcadadf4c953c1329a023c60e48"
+  var req = https.get(geocodeUrl, function(res) {
+    var body = "";
+
+    res.on('data', function(chunk) {
+      body += chunk;
+    });
+
+    res.on('end', function() {
+      //removing escape characters for parsing
+      body = body.replace(/\\/g,'');
+      //converts string to JS object
+      var result = JSON.parse(body);
+      console.log(186, result);
+      
+      if(!result.results.length){
+        return callback(new Error('Invalid Response from google'));
+      }
+      var location = result.results[0].geometry.location;
+      callback(null, location);
+    });
+
+  });
+
+  req.on('error', function(err) {
+    callback(err);
+  });
+}
 
 function buildResponse(options) {
 
   if(process.env.NODE_DEBUG_EN) {
     console.log("buildResponse options:\n"+JSON.stringify(options,null,2));
   }
+
   var response = {
     version: "1.0",
     response: {
@@ -120,21 +153,20 @@ function buildResponse(options) {
 }
 
 function handleLaunchRequest(context) {
-  var options = {};
-  options.speechText =  "Welcome to Green Score skill. Using Green Score you can get walk, bike and transit scores of cities in United States"
-  +"Which city you want go for? ";
-  options.repromptText = "You can say for example, get me GoGreen information for Seattle";
+  let options = {};
+  options.speechText =  "Welcome to Green Score. Using Green Score you can get walk , bike and transit scores of cities in the United States."
+  + "<break time='1s'/> Which city you want go first?<break time='1s'/> You can say for example, get me Green Score information for Seattle";
+  options.repromptText = "You can say for example, get me Green Score information for Seattle";
   options.endSession = false;
   context.succeed(buildResponse(options));
 }
 
 function handleCityNameIntent(request,context) {
-  var options = {};
+  let options = {};
   const city = request.intent.slots.CityName.value;
-  options.speechText = 'OK. city name is  ' + '  ' + city;
+  //options.speechText = 'OK city name is' + city;
   //options.speechText += getWish();
-  options.cardTitle = 'Score for  '+ ' ' + city;
-  
+  options.cardTitle = 'Green Score information for '+ city;
   getGeoCode(city, function (err, location) {
     console.log(189, location);
     if (err) {
@@ -146,64 +178,28 @@ function handleCityNameIntent(request,context) {
       if(err) {
         context.fail(err);
       } else {
+        //options.speechText =resp.description;
         if(resp.walkscore){
-            //options.speechText += ' The walkscore for ' + resp.walkscore;
-            options.speechText += ' The walkscore for  ' + city+ 'is'+ ' '+ resp.walkscore + 'and it is '+ ' ' + resp.description;
-          if(resp.walkscore>69 and resp.walkscore<100){
-            options.speechText += 'Some proven facts for walkable cities:  People in walkable cities weigh 6-10 pounds less, Walkable neighborhoods make people happier';
-            }
-          else if(resp.walkscore>0 and resp.walkscore<69){
-          options.speechText += 'Some proven facts for car dependant cities:  Vehicles are America’s biggest air quality compromisers, producing about one-third of all U.S. air pollution.he end of a car’s life doesn’t mark the end of its environmental impact. Plastics, toxic battery acids, and other products may stay in the environment.';
-          }
+          options.speechText = "<s>Walkscore for " + city+' is '+resp.walkscore+' and the area is '+resp.description+"."+"</s>";
+        }
         if(resp.transit && resp.transit.score){
-          options.speechText += ' transit score for  ' + city+ 'is'+ ' '+ resp.transit.score + 'and it is '+ resp.transit.description;
+          options.speechText += "<break time='1s'/>Transit score is " + resp.transit.score + ' and the area is '+ resp.transit.description+".";
         } else {
-          options.speechText += ' transit score for' +city+ ' '+'is not available'
+          options.speechText += "<break time='1s'/>Transit score is not available"
         }
         if(resp.bike && resp.bike.score){
-          options.speechText += ' bike score is ' + resp.bike.score + '  ' + 'The area is '+resp.bike.description;
+          options.speechText += "<break time='1s'/>Bike score is "+ resp.bike.score + ' and the area is ' + resp.bike.description+".";
         } else {
-          options.speechText += ' bike score for '+city+ 'is not available'
+          options.speechText += "<break time='1s'/>Bike score is not available</s>"
         }
         options.cardContent = resp.description;
         options.imageUrl = resp.ws_link;
         options.endSession = true;
         context.succeed(buildResponse(options));
       }
-    };
+    });
   })
-}
-
-function getGeoCode(city, callback){
-
-  const API_KEY = 'AIzaSyAeikm6Xn70P1S7-rzs7HO_iQ7m3dOwXVM';
-  const geocodeUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + city + '&key=' + API_KEY;
-  var req = https.get(geocodeUrl, function(res) {
-    var body = "";
-
-    res.on('data', function(chunk) {
-      body += chunk;
-    });
-
-    res.on('end', function() {
-      //removing escape characters for parsing
-      body = body.replace(/\\/g,'');
-      //converts string to JS object
-      var result = JSON.parse(body);
-      console.log(186, result);
-      
-      if(!result.results.length){
-        return callback(new Error('Invalid Response from google'));
-      }
-      var location = result.results[0].geometry.location;
-      callback(null, location);
-    });
-
-  });
-
-  req.on('error', function(err) {
-    callback(err);
-  });
+  
 }
 
 function getScore(city, location, callback) {
