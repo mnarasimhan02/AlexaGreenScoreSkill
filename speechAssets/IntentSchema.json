@@ -10,12 +10,6 @@
       ]
     },
     {
-      "intent" : "QuoteIntent"
-    },
-    {
-      "intent" : "NextQuoteIntent"
-    },
-    {
       "intent" : "AMAZON.StopIntent"
     }
   ]

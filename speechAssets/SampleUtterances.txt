@@ -1,4 +1,3 @@
-greenscore
-say hello to {CityName}
-get me score for {CityName}
-what is the score for {CityName}
+CityNameIntent {CityName}
+CityNameIntent get me the score for {CityName}
+CityNameIntent what is the score for {CityName}

@@ -33,14 +33,6 @@ exports.handler = function(event,context) {
 
         handleCityNameIntent(request,context);
 
-      } else if (request.intent.name === "QuoteIntent") {
-
-        handleQuoteIntent(request,context,session);
-
-      } else if (request.intent.name === "NextQuoteIntent") {
-
-        handleNextQuoteIntent(request,context,session);
-
       } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
         context.succeed(buildResponse({
           speechText: "Good bye. ",
@@ -154,7 +146,7 @@ function buildResponse(options) {
 
 function handleLaunchRequest(context) {
   let options = {};
-  options.speechText =  "Welcome to Green Score. Using Green Score you can get walk , bike and transit scores of cities in the United States."
+  options.speechText =  "Welcome to Green Score. Using Green Score you can get walk and bike scores of cities in the United States."
   + "<break time='1s'/> Which city you want go first?<break time='1s'/> You can say for example, get me Green Score information for Seattle";
   options.repromptText = "You can say for example, get me Green Score information for Seattle";
   options.endSession = false;
@@ -180,17 +172,25 @@ function handleCityNameIntent(request,context) {
       } else {
         //options.speechText =resp.description;
         if(resp.walkscore){
-          options.speechText = "<s>Walkscore for " + city+' is '+resp.walkscore+' and the area is '+resp.description+"."+"</s>";
+          options.speechText = "<s>Walkscore for " + city+' is '+resp.walkscore+' and the area is '+resp.description+"</s>";
+        if(resp.walkscore>70 && resp.walkscore<101){
+          options.speechText += "<break time='1s'/> Fun Facts for walkable places: <break strength='strong'/> people in walkable places weigh 6-10 pounds less <break strength='strong'/>walkable neighborhoods make people happier and reduces carbon emissions <break strength='strong'/>";
+          } else {
+          options.speechText += "<break time='1s'/> Facts for car-dependent places: <break strength='strong'/> Drive smart! Don't idle: Unnecessary idling wastes fuel and harms your vehicle. If you're stopping for longer than 10 seconds (except in traffic of course!), turn off the engine <break strength='strong'/>Minimize air conditioning: To stay cool on the highway, use your car's flow-through ventilation. <break strength='strong'/> When driving in the city, open a window. <break strength='strong'/>";
+          }
         }
-        if(resp.transit && resp.transit.score){
+        /*if(resp.transit && resp.transit.score){
           options.speechText += "<break time='1s'/>Transit score is " + resp.transit.score + ' and the area is '+ resp.transit.description+".";
         } else {
           options.speechText += "<break time='1s'/>Transit score is not available"
         }
+        */
         if(resp.bike && resp.bike.score){
-          options.speechText += "<break time='1s'/>Bike score is "+ resp.bike.score + ' and the area is ' + resp.bike.description+".";
+          options.speechText += "<break time='1s'/>Bike score is "+ resp.bike.score + 'for' + city+ ' and the area is ' + resp.bike.description+".";
+          options.speechText += "<break time='1s'/> Biking Facts : <break strength='strong'/> riding your bike to work rather than driving can cut down your household emissions by atleast 6%<break strength='strong'/>cars produce point 97 pounds of pollution per mile annually; bikes produce none. Bikes are also up to 50% faster thatn cars during rush hour <break strength='strong'/>";
+       
         } else {
-          options.speechText += "<break time='1s'/>Bike score is not available</s>"
+          options.speechText += "<break time='1s'/>Bike score is not available for"+city;
         }
         options.cardContent = resp.description;
         options.imageUrl = resp.ws_link;
