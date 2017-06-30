@@ -187,7 +187,7 @@ function handleCityNameIntent(request,context) {
         */
         if(resp.bike && resp.bike.score){
           options.speechText += "<break time='1s'/>Bike score is "+ resp.bike.score + 'for' + city+ ' and the area is ' + resp.bike.description+".";
-          options.speechText += "<break time='1s'/> Biking Facts : <break strength='strong'/> riding your bike to work rather than driving can cut down your household emissions by atleast 6%<break strength='strong'/>cars produce point 97 pounds of pollution per mile annually; bikes produce none. Bikes are also up to 50% faster thatn cars during rush hour <break strength='strong'/>";
+          options.speechText += "<break time='1s'/> Biking Facts : <break strength='strong'/> riding your bike to work rather than car can cut down your household emissions by minimum 6 percent   <break strength='strong'/>cars produce point 97 pounds of pollution per mile annually; bikes produce none. Bikes are also up to 50% faster thatn cars during rush hour <break strength='strong'/>";
        
         } else {
           options.speechText += "<break time='1s'/>Bike score is not available for"+city;
