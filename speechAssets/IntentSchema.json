@@ -10,7 +10,19 @@
       ]
     },
     {
+      "intent" : "NextCityIntent",
+      "slots" : [
+        {
+          "name": "CityName",
+          "type": "CITY_NAMES"
+        }
+      ]
+    },
+    {
       "intent" : "AMAZON.StopIntent"
+    },
+        {
+      "intent" : "AMAZON.CancelIntent"
     }
   ]
 }

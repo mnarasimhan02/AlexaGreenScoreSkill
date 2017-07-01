@@ -1,3 +1,6 @@
 CityNameIntent {CityName}
 CityNameIntent get me the score for {CityName}
 CityNameIntent what is the score for {CityName}
+
+NextCityIntent another city
+NextCityIntent one more city
