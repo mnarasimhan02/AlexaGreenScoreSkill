@@ -7,14 +7,14 @@ exports.handler = function(event,context) {
 
   try {
 
-    if(process.env.NODE_DEBUG_EN) {
+    if (process.env.NODE_DEBUG_EN) {
       console.log("Request:\n"+JSON.stringify(event,null,2));
     }
 
     var request = event.request;
     var session = event.session;
 
-    if(!event.session.attributes) {
+    if (!event.session.attributes) {
       event.session.attributes = {};
     }
 
@@ -31,7 +31,7 @@ exports.handler = function(event,context) {
 
       if (request.intent.name === "CityNameIntent") {
 
-        handleCityNameIntent(request,context);
+        handleCityNameIntent(request,context,session);
 
       }  else if (request.intent.name === "NextCityIntent") {
 
@@ -39,7 +39,7 @@ exports.handler = function(event,context) {
 
     } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent") {
         context.succeed(buildResponse({
-          speechText: "Good bye. ",
+          speechText: "Promote Green Environrment to the best of your ability. Good bye. ",
           endSession: true
         }));
 
@@ -157,9 +157,9 @@ function handleLaunchRequest(context) {
   context.succeed(buildResponse(options));
 }
 
-function handleCityNameIntent(request,context) {
+function handleCityNameIntent(request,context,session) {
   let options = {};
-  const city = request.intent.slots.CityName.value;
+  let city = request.intent.slots.CityName.value;
   //options.speechText = 'OK city name is' + city;
   //options.speechText += getWish();
   options.cardTitle = 'Green Score information for '+ city;
@@ -199,22 +199,21 @@ function handleCityNameIntent(request,context) {
         options.cardTitle= "Walk and Bike scores for " +city
         options.cardContent ="Walkscore for " + city+" is "+resp.walkscore+" and the area is "+resp.description+ "\nBike score is "+ resp.bike.score + " for " + city+ " and the area is " + resp.bike.description+"\n For more information around scores visit: - "+resp.more_info_link;
         //options.imageUrl = resp.ws_link;
-        console.log (options.imageUrl);
-        options.speechText +="<break time='1s'/>Do you want to get score information for another city?"
-        //options.session.attributes.NextCityIntent=true;
-        options.endSession = true;
+        options.session = session;
+        options.speechText +="<break time='1s'/>Do you want to get score information for another city?";
+        options.repromptText="You can say yes or one more.";
+        options.session.attributes.NextCityIntent=true;
+        options.endSession = false;
         context.succeed(buildResponse(options));
       }
     });
   })
 }
 
-function handleNextCityIntent(request,context) {
+function handleNextCityIntent(request,context,session) {
   let options = {};
-  options.session = session;
   const city = request.intent.slots.CityName.value;
-  //options.speechText += getWish();
-  options.cardTitle = 'Green Score information for '+ city;
+  options.session = session;
 if(session.attributes.NextCityIntent) {
     getGeoCode(city, function (err, location) {
       console.log(189, location);
@@ -235,13 +234,7 @@ if(session.attributes.NextCityIntent) {
             } else {
             options.speechText += "<break time='1s'/> Facts for car-dependent places: <break strength='strong'/> Drive smart! Don't idle: Unnecessary idling wastes fuel and harms your vehicle. If you're stopping for longer than 10 seconds (except in traffic of course!), turn off the engine <break strength='strong'/>Minimize air conditioning: To stay cool on the highway, use your car's flow-through ventilation. <break strength='strong'/> When driving in the city, open a window. <break strength='strong'/>";
             }
-          }
-          /*if(resp.transit && resp.transit.score){
-            options.speechText += "<break time='1s'/>Transit score is " + resp.transit.score + ' and the area is '+ resp.transit.description+".";
-          } else {
-            options.speechText += "<break time='1s'/>Transit score is not available"
-          }
-          */
+          } 
           if(resp.bike && resp.bike.score){
             options.speechText += "<break time='1s'/>Bike score is "+ resp.bike.score + 'for' + city+ ' and the area is ' + resp.bike.description+".";
             options.speechText += "<break time='1s'/> Biking Facts : <break strength='strong'/> riding your bike to work rather than car can cut down your household emissions by minimum 6 percent   <break strength='strong'/>cars produce point 97 pounds of pollution per mile annually; bikes produce none. Bikes are also up to 50% faster thatn cars during rush hour <break strength='strong'/>";
@@ -249,8 +242,8 @@ if(session.attributes.NextCityIntent) {
           } else {
             options.speechText += "<break time='1s'/>Bike score is not available for"+city;
           }
-          options.cardContent = resp.description;
-          options.imageUrl = resp.ws_link;
+          options.cardTitle= "Walk and Bike scores for " +city
+          options.cardContent ="Walkscore for " + city+" is "+resp.walkscore+" and the area is "+resp.description+ "\nBike score is "+ resp.bike.score + " for " + city+ " and the area is " + resp.bike.description+"\n For more information around scores visit: - "+resp.more_info_link;
           options.endSession = false;
           context.succeed(buildResponse(options));
         }
@@ -279,7 +272,7 @@ function getScore(city, location, callback) {
       body = body.replace(/\\/g,'');
       //converts string to JS object
       var score = JSON.parse(body);
-      console.log(186, score);
+      //console.log(186, score);
       callback(null, score);
     });
 
