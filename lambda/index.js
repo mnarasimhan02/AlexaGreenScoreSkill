@@ -273,10 +273,10 @@ function handleCityNameIntent(request, context, session) {
                     options.speechText += "<break time='1s'/>Bike score is not available for" + city;
                 }
                 options.cardTitle = "Walk and Bike scores for " + city
-                options.cardContent = "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description + "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description + "\n For more information around scores visit: - " + resp.more_info_link;
+                options.cardContent = "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description + "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description + "\nScores powered by Walk Score® https://www.walkscore.com/";
                 //options.imageUrl = resp.ws_link;
                 options.session = session;
-                options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say the yes followed by city name";
+                options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes followed by city name";
                 options.repromptText = "You can say yes or one more.";
                 options.session.attributes.NextCityIntent = true;
                 options.endSession = false;
@@ -308,7 +308,7 @@ function handleNextCityIntent(request, context, session) {
                 if (err) {
                     context.fail(err);
                 } else {
-                    options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes and the CityName";
+                    options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes followed by city name";
                     const city = request.intent.slots.CityName.value;
                     options.repromptText = "You can say yes or one more.";
                     //options.speechText =resp.description;
@@ -324,7 +324,7 @@ function handleNextCityIntent(request, context, session) {
                     options.cardTitle = "Walk and Bike scores for " + city
                     options.cardContent = "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description + "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description + "\nScores powered by Walk Score® https://www.walkscore.com/";
                     options.endSession = false;
-                    options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes followed by city name";
+                    options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> say yes followed by city name";
                     options.session.attributes.NextCityIntent = true;
                     context.succeed(buildResponse(options));
                 }
