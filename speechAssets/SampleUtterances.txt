@@ -1,7 +1,7 @@
 CityNameIntent {CityName}
-CityNameIntent get me the score for {CityName}
+CityNameIntent get me greenscore for {CityName}
 CityNameIntent what is the score for {CityName}
 
 NextCityIntent another city {CityName}
-NextCityIntent one more city {CityName}
 NextCityIntent yes {CityName}
+NextCityIntent yes and the cityname is {CityName}
