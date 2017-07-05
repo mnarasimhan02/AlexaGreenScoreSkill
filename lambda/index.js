@@ -98,7 +98,6 @@ exports.handler = function(event, context) {
             handleLaunchRequest(context);
 
         } else if (request.type === "IntentRequest") {
-
             if (request.intent.name === "CityNameIntent") {
 
                 handleCityNameIntent(request, context, session);
@@ -249,6 +248,7 @@ function handleCityNameIntent(request, context, session) {
                 context.fail(err);
             } else {
                 //options.speechText =resp.description;
+                options.cardContent = '';
                 if (resp.walkscore) {
                     options.speechText = "<s>Walkscore for " + city + ' is ' + resp.walkscore + ' and the area is ' + resp.description + "</s>";
                     if (resp.walkscore > 70 && resp.walkscore < 101) {
@@ -258,7 +258,7 @@ function handleCityNameIntent(request, context, session) {
                         //options.speechText += "<break time='1s'/> Facts for car-dependent places: <break strength='strong'/> Drive smart! Don't idle: Unnecessary idling wastes fuel and harms your vehicle. If you're stopping for longer than 10 seconds (except in traffic of course!), turn off the engine <break strength='strong'/>Minimize air conditioning: To stay cool on the highway, use your car's flow-through ventilation. <break strength='strong'/>";
                         options.speechText += "<break time='1s'/> Fact about car-dependant cities:" + getRandomFact('car');
                     }
-                }
+                    options.cardContent += "Walkscore for " + city + " is " + resp.walkscore + " and the area is "  + resp.description;                }
                 /*if(resp.transit && resp.transit.score){
                   options.speechText += "<break time='1s'/>Transit score is " + resp.transit.score + ' and the area is '+ resp.transit.description+".";
                 } else {
@@ -269,12 +269,13 @@ function handleCityNameIntent(request, context, session) {
                     options.speechText += "<break time='1s'/>Bike score is " + resp.bike.score + ' for' + city + ' and the area is ' + resp.bike.description + ".";
                     //options.speechText += "<break time='1s'/> Biking Facts : <break strength='strong'/> riding your bike to work rather than car can cut down your household emissions by minimum 6 percent   <break time='1s'/> cars produce point 97 pounds of pollution per mile annually; bikes produce none. Bikes are also up to 50% faster than cars during rush hour. <break strength='strong'/>";
                     options.speechText += "<break time='1s'/> Fact about bikable neighborhoods" + getRandomFact('bike');
+                    options.cardContent += "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description;
                 } else {
                     options.speechText += "<break time='1s'/>Bike score is not available for" + city;
                 }
                 options.cardTitle = "Walk and Bike scores for " + city;
-                options.cardContent = "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description + "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description + "\nScores powered by Walk Score® https://www.walkscore.com/";
-                //options.imageUrl = resp.ws_link;
+                options.cardContent += "\nScores powered by Walk Score® https://www.walkscore.com/";
+                //options.imageUrl = resp.ws_link;+
                 options.session = session;
                 options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes followed by city name";
                 options.repromptText = "You can say yes or one more.";
@@ -308,21 +309,23 @@ function handleNextCityIntent(request, context, session) {
                 if (err) {
                     context.fail(err);
                 } else {
+                  options.cardContent = '';
                     options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> just say yes followed by city name";
                     const city = request.intent.slots.CityName.value;
                     options.repromptText = "You can say yes or one more.";
                     //options.speechText =resp.description;
                     if (resp.walkscore) {
+                        options.cardContent += "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description;
                         options.speechText = "<s>Walkscore for " + city + ' is ' + resp.walkscore + ' and the area is ' + resp.description + "</s>";
                     }
                     if (resp.bike && resp.bike.score) {
                         options.speechText += "<break time='1s'/>Bike score is " + resp.bike.score + 'for' + city + ' and the area is ' + resp.bike.description + ".";
-
+                        options.cardContent += "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description;
                     } else {
                         options.speechText += "<break time='1s'/>Bike score is not available for" + city;
                     }
                     options.cardTitle = "Walk and Bike scores for " + city;
-                    options.cardContent = "Walkscore for " + city + " is " + resp.walkscore + " and the area is " + resp.description + "\nBike score is " + resp.bike.score + " for " + city + " and the area is " + resp.bike.description + "\nScores powered by Walk Score® https://www.walkscore.com/";
+                    options.cardContent += "\nScores powered by Walk Score® https://www.walkscore.com/";
                     options.endSession = false;
                     options.speechText += "<break time='1s'/>Do you want to get score information for another city?<break time='1s'/> say yes followed by city name";
                     options.session.attributes.NextCityIntent = true;
