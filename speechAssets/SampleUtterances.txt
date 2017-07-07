@@ -1,7 +1,7 @@
 AMAZON.StopIntent No
 CityNameIntent {CityName}
-CityNameIntent get me greenscore for {CityName}
 CityNameIntent what is the score for {CityName}
+CityNameIntent get me greenscore for {CityName}
 CityNameIntent provide me the score for {CityName}
 CityNameIntent get me the score for {CityName}
 CityNameIntent tel me the score for {CityName}

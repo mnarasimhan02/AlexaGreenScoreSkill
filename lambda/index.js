@@ -105,6 +105,11 @@ exports.handler = function(event, context) {
             } else if (request.intent.name === "NextCityIntent") {
 
                 handleNextCityIntent(request, context, session);
+            } else if (request.intent.name === "AMAZON.HelpIntent") {
+               context.succeed(buildResponse({
+                    speechText: "Using Green Score you can get walk and bike scores of cities in the United States. <break time='1s'/> You can say for example, get me Green Score for Seattle or what is the score for Seattle. <break time='1s'/> If you want to exit the skill, just say stop.'",
+                    endSession: true
+                }));
 
             } else if (request.intent.name === "AMAZON.StopIntent" || request.intent.name === "AMAZON.CancelIntent" || request.intent.name === "AMAZON.NoIntent"  ) {
                 context.succeed(buildResponse({
@@ -143,7 +148,7 @@ function getGeoCode(city, callback) {
             body = body.replace(/\\/g, '');
             //converts string to JS object
             var result = JSON.parse(body);
-            console.log(186, result);
+            //console.log(186, result);
 
             if (!result.results.length) {
                 return callback(new Error('Invalid Response from google'));
@@ -229,8 +234,7 @@ function handleCityNameIntent(request, context, session) {
     let city = request.intent.slots.CityName.value.toLowerCase();
     //options.speechText = 'OK city name is' + city;
     //options.speechText += getWish();
-    console.log(175, city);
-    if (!checkCity(city)) {
+    if (!checkCity(city) || city==="") {
         options.speechText = 'Looks like you have provided an invalid City Name. The skill provides scores only for valid US cities. If you want to exit the skill, just say stop.';
         options.endSession = false;
         return context.succeed(buildResponse(options));
@@ -243,7 +247,7 @@ function handleCityNameIntent(request, context, session) {
             //return 
         }
         getScore(city, location, function(err, resp) {
-            console.log(158, resp, err)
+            //console.log(158, resp, err)
             if (err) {
                 context.fail(err);
             } else {
@@ -355,7 +359,7 @@ function getScore(city, location, callback) {
             body = body.replace(/\\/g, '');
             //converts string to JS object
             var score = JSON.parse(body);
-            console.log(186, score);
+            //console.log(186, score);
             callback(null, score);
         });
 
