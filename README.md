@@ -1,8 +1,5 @@
 [Greenscore]
-(https://www.amazon.com/Mahesh-N-Green-Score/dp/B073QZDWQR/ref=sr_1_1?s=digital-skills&ie=UTF8&qid=1510126348&sr=1-1&keywords=green+score "Alexa Skill")
-
-![]({{site.baseurl}}//Capture.PNG)
-
+<a href='https://www.amazon.com/Mahesh-N-Green-Score/dp/B073QZDWQR/ref=sr_1_1?s=digital-skills&ie=UTF8&qid=1510126348&sr=1-1&keywords=green+score'></a>
 
 # Sample AWS Lambda function for Alexa
 A  [AWS Lambda](http://aws.amazon.com/lambda) function that provides greenscore information of various cities in USA and provides random facts for improving sustainability for walking , biking and car dependant cities. The skill uses Alexa nodeSDK
